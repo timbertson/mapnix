@@ -1,0 +1,7 @@
+#!bash -eu
+sources="mapnix.py"
+gup -u $sources
+0install run http://gfxmonk.net/dist/0install/pychecker.xml \
+	--maxlocals 100 \
+	$sources
+touch "$1"

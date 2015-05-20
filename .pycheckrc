@@ -1,0 +1,4 @@
+unusedNames = [ '_', '_*' ]
+shadowBuiltins = False
+redefiningFunction = False
+
