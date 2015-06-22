@@ -100,6 +100,7 @@ in {
           };
         };
     in
+    if hooks == null then {} else
     mapAttrs (hookName: hook:
       if hookName == "custom" then (
         # recurse one level deeper

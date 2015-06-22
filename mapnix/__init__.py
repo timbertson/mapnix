@@ -205,7 +205,7 @@ def key_safe(key):
 def dump_cmd(cmd):
 	log.debug("+ " + " ".join(cmd))
 
-def run(cmd, *a, **k):
+def run_cmd(cmd, *a, **k):
 	dump_cmd(cmd)
 	return subprocess.check_call(cmd, *a, **k)
 
@@ -337,10 +337,12 @@ class Machine(object):
 		if self.config.get('signStore'):
 			cmd.insert(1, '--sign')
 
-		run(cmd, env=env, cwd=cwd)
+		run_cmd(cmd, env=env, cwd=cwd)
 	
 	def gather_facts(self):
 		spec = self.config['gatherFacts']
+		if spec is None:
+			return None
 		with open(spec['module']) as f:
 			expr = f.read()
 
@@ -393,6 +395,7 @@ class Machine(object):
 		return facts
 
 	def activate_config(self, path, force):
+		prefix=''
 		if self.user != 'root':
 			prefix='sudo '
 
@@ -548,7 +551,7 @@ class Deployment(object):
 		def build():
 			dest_path = os.path.join(self.storage_dir, "bootstrap-%sg" % (size,))
 			log.info("building bootstrap image %s\n  in %s\n  (this will take a while if it has not been previously built)", identity, dest_path)
-			run(nix_build_cmd(dest_path,
+			run_cmd(nix_build_cmd(dest_path,
 				self._eval_args(state=False, attrib='bootstrap.'+provider+'.image')
 				+ ['--arg', 'diskSize', "%d" % size]
 			))
@@ -649,7 +652,7 @@ class Deployment(object):
 				with tempfile.NamedTemporaryFile() as f:
 					f.write(contents)
 					f.flush()
-					run(sudo_arg + runner + [f.name] + args, cwd=self.cwd)
+					run_cmd(sudo_arg + runner + [f.name] + args, cwd=self.cwd)
 			else:
 				# trickier, we need to run it via SSH
 				assert '__MAPNIX_EOF' not in contents
@@ -911,7 +914,7 @@ class Libvirtd(ProviderCommon):
 			with atomic_write(dest) as dest:
 				if not os.path.exists(bootstrap_image):
 					with atomic_write(bootstrap_image) as bootstrap_tmp:
-						run([
+						run_cmd([
 							"nix-build",
 							"-o", bootstrap_tmp,
 							"--arg", "checkConfigurationOptions", "false",
@@ -935,8 +938,8 @@ class Libvirtd(ProviderCommon):
 			with open(xml_path, 'w') as f:
 				f.write(machine_xml)
 			log.debug("making machine from xml:\n" + machine_xml)
-			# run(self.virsh_cmd + ["create", xml_path]);
-			run(['sudo','virsh', '-c','qemu:///system'] + ["create", xml_path]);
+			# run_cmd(self.virsh_cmd + ["create", xml_path]);
+			run_cmd(['sudo','virsh', '-c','qemu:///system'] + ["create", xml_path]);
 		return DiffChange.CreateMachine("create machine %s" % name, create)
 
 	def new_disk(self, disk):
@@ -944,7 +947,7 @@ class Libvirtd(ProviderCommon):
 			dest = self.disk_path(disk, None)
 			with atomic_write(dest) as dest:
 				# TODO: run via nix?
-				run(['qemu-img', 'create', '-f', 'qcow2', dest, "%dG" % disk['size']])
+				run_cmd(['qemu-img', 'create', '-f', 'qcow2', dest, "%dG" % disk['size']])
 		return DiffChange(Order.CreateDisk, "create empty disk " + disk['id'], create)
 	
 	@property

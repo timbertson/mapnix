@@ -143,12 +143,14 @@ in
           # XXX sub-options aren't working
           actions = mkOption { type = types.listOf types.attrs; options = script; default = []; };
         };
-      in {
-        order = mkOption (optional order);
-        build = customHookType;
-        push = hookType;
-        activate = hookType;
-        custom = mkOption { type = types.attrsOf types.optionSet; options = customHookType; };
+      in mkOption { default = null; type = types.nullOr types.optionSet;
+        options = {
+          order = mkOption (optional order);
+          build = customHookType;
+          push = hookType;
+          activate = hookType;
+          custom = mkOption { type = types.attrsOf types.optionSet; options = customHookType; };
+        };
       };
     };
 
