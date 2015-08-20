@@ -8,12 +8,12 @@
 	makeWrapper ? pkgs.makeWrapper
 }:
 stdenv.mkDerivation {
-	name = "mapnix-env";
+	name = "mapnix";
 	buildInputs = [ makeWrapper pythonPackages.wrapPython ];
 	src = fetchgit {
 		url = "https://github.com/gfxmonk/mapnix.git";
-		rev = "07ea26454a15b3076e6f099c55a0a8b51d3c4b32";
-		sha256="b9833bc41554b4cb5e5046dc830e0f59a7e2f3b8c477df59d20bef9cb5c56abd";
+		rev = "740a7ad66188040f0bb82871c381029b6b610fb8";
+		sha256="9b2be2520543abc80951a73942ad2cc1c135db3676bae7531f74e5197fc45100";
 	};
 	pythonPath = [
 		pythonPackages.pycrypto
